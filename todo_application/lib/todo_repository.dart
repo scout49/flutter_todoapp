@@ -4,39 +4,6 @@ import 'package:todo_application/value/todo_viewdata.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-Color? getColorFromInt(int? colorval){
-  final vis = 100;
-  switch(colorval){   
-    case 1:
-    return Colors.green[vis];
-
-    case 2:
-      return Colors.yellow[vis];
-
-    case 3:
-      return Colors.red[vis];
-
-    default:
-      return null;
-  }
-}
-
-int getIntFromColor(Color? color){
-
-  switch(color){   
-    case Colors.green:
-    return 1;
-
-    case Colors.yellow:
-      return 2;
-
-    case Colors.red:
-      return 3;
-
-    default:
-      return 0;
-  }
-}
 
 class TodoRepository{
   const TodoRepository({required this.database});
@@ -58,7 +25,7 @@ class TodoRepository{
         text: todo.title,
         complete: todo.iscomplete,
         alarm: alarm,
-        color: getColorFromInt(todo.color),
+        color: Color(todo.color),
       );
     }).toList();
   }
@@ -79,7 +46,7 @@ class TodoRepository{
       alarm: alarm,
       alarmid: alarmid,
       complete: todo.iscomplete,
-      color: getColorFromInt(todo.color),
+      color: Color(todo.color),
     );
   }
 
@@ -102,8 +69,14 @@ class TodoRepository{
   }
 
   Future<void>updateTodoColor(int id, Color? color)async{
-    final colorval = getIntFromColor(color);
-    await database.updateTodoColor(id, colorval);
+    final colorval = color?.value;
+    if (colorval == null){
+      print('savecolor:transparent');
+      await database.updateTodoColor(id, Colors.transparent.value);
+    }else{
+      print('savecolor:$color');
+      await database.updateTodoColor(id, colorval);
+    }
   }
 
   Future<void>updateAlarmTime(int id, DateTime time)async{
@@ -122,6 +95,10 @@ class TodoRepository{
   Future<void>addAlarm(int id, DateTime time)async{
     await database.addAlarm(id, time, 1);
     print('addAlarm');
+  }
+
+  Future<void> updateTodoPosition(int id, int position)async{
+    await database.updatePosition(id, position);
   }
 
   Future<void> reorderTodos(int oldid, int newid)async{

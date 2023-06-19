@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'todolistpage_state.freezed.dart';
+part 'todo_listpage_state.freezed.dart';
 
 @freezed
 class TodoListPageState with _$TodoListPageState{

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:todo_application/provider.dart';
-import 'package:todo_application/ui/todo_editwidget.dart';
+import 'package:todo_application/page/todoeditpage/widget_todo_edit.dart';
 import 'package:todo_application/value/todo_editdata.dart';
 import 'package:todo_application/ui/widget_button.dart';
-import 'package:todo_application/ui/WidgetList.dart';
+import 'package:todo_application/ui/widget_list.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:todo_application/todo_repository.dart';
 
@@ -14,24 +13,23 @@ class TodoEditPage extends HookConsumerWidget {
 
   final int todoid;
 
-  final List<Widget> color = const <Widget>[
-    Text('なし'),
-    Text('緑'),
-    Text('黄'),
-    Text('赤')
-  ];
-
-
-  final TextEditingController textController = TextEditingController();
-
-  @override
-  void dispose() {
-    textController.dispose();
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final todoEditDataAsync = ref.watch(todoProvider(todoid));
+    final setState = ref.watch(editPageStateProvider.notifier);
+
+    Future.microtask((){
+      todoEditDataAsync.when(data: (todo){
+          setState.setStates(todo);
+          if(todo.alarm == null){
+            setState.setAlarmState(DateTime.now());
+           print('alarmtime_null');
+          }
+      }, 
+      error: ((error, stackTrace) {}), 
+      loading: (){});
+    });
+
 
     return Scaffold(
       body: todoEditDataAsync.when(

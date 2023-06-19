@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:todo_application/ui/WidgetList.dart';
+import 'package:todo_application/ui/widget_list.dart';
 import 'package:todo_application/provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../ui/widget_button.dart';
@@ -21,7 +21,7 @@ class TodoListPage extends HookConsumerWidget {
         data: (todos) {
           //final filteredTodos = filterTodoList(todos,listNotifier.selecteddate);
           //return DismissibleReorderbleListView(todos: todos);
-          return DismissibleReorderbleListView_test();
+          return DismissibleReorderbleListView(todos : todos);
           //return TodoCalenderView(todos: todos);
         },
       ),
@@ -43,7 +43,8 @@ class TodoListPage extends HookConsumerWidget {
               onDateSelected: (pickedDate) {
                 ref.watch(selectedDateProvider.notifier).selectDate(pickedDate);
               },
-            )
+            ),
+            
           ],
           
         ),

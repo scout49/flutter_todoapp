@@ -1,0 +1,59 @@
+各種決まり事
+クラス名はパスカルケースを使用(ex:ExampleClass)
+メゾットはキャメルケースを使用(ex:exmapleClass)
+ファイル名は基本スネークケースを使用(ex: example_class.dart)
+
+
+ファイル名について
+
+widgetを記述したファイルは基本的に'widget_'から始まる名前を使用するが(ex:widget_example.dart)、
+pageを担当するwidgetについては'Page'で終えるパスカルケースの名前を使用(ex:ExamplePage.dart)
+
+
+valueフォルダ内のファイル名は格納するデータを表す単語'_'使用先（目的）を示す単語で構成し、
+'data'や'_state'で終わる名前を使用する
+(ex:todo_editdata.dart -todoのデータを格納し、edit時に使用するデータ)
+
+それ以外のフォルダ内のファイル名は基本的に'フォルダ名_'から始める(ex:database_example.dart)
+
+
+ファイルの配置について
+
+Scaffoldを使用するなど、ページの全体の表示を担当するWidgetをpageに
+複数のページで使用されているWidgetはuiフォルダ内に配置、
+
+特定のページでのみ使用するwidgetに関してはpageフォルダに配置可、
+長くなる場合は別ファイルに分けてもよい、その場合はフォルダを作成してまとめること
+（ほかのページに類似のwidgetが存在する場合はwidget内にフォルダを作成してまとめること）
+
+providerに関しても同様に複数のページで使用する場合はprovider.dart内に、
+特定ページでのみ使用する場合はファイル内に記述可
+
+複数ページで使用するwidgetは原則providerへの操作を記述せず、引数に関数を設定し、
+各ページwidgetで処理内容を記述させること
+
+ex:
+class ExampleWidget extends StatelessWidget{
+    const ExampleWidget({
+        required this.onSelected,
+    });
+
+    final Function() onSelected;
+
+    @override
+    Widget build(BuildContext context){
+        return ElevatedButton(
+            onPressed: (){
+                onSelected();
+            }
+        );
+    }
+}
+
+class ExamplePage //省略
+
+    ExampleWidget(onSelected:(){
+        ref.watch(exampleProvider).setState;
+    }),
+
+//省略

@@ -13,7 +13,8 @@ class TodoCalenderPage extends HookConsumerWidget{
     final selectDate = ref.watch(selectedDateProvider).selecteddate;
 
       return Scaffold(
-      body: todoListAsync.when(
+      body: SafeArea(
+        child: todoListAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(child: Text('エラーが発生しました')),
         
@@ -21,7 +22,7 @@ class TodoCalenderPage extends HookConsumerWidget{
           return TodoCalendarView(todos: todos,selectdate: selectDate);
         },
         
-      ),
+      ),)
       );
   }
 
