@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:todo_application/ui/WidgetList.dart';
+import 'package:todo_application/ui/widget_list.dart';
 import 'package:todo_application/provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 

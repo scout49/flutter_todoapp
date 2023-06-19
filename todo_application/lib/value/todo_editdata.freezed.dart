@@ -22,7 +22,8 @@ mixin _$TodoEditData {
   int? get alarmid => throw _privateConstructorUsedError;
   String get text => throw _privateConstructorUsedError;
   bool get complete => throw _privateConstructorUsedError;
-  Color? get color => throw _privateConstructorUsedError;
+  Color get color => throw _privateConstructorUsedError;
+  bool get setAlarm => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $TodoEditDataCopyWith<TodoEditData> get copyWith =>
@@ -42,7 +43,8 @@ abstract class $TodoEditDataCopyWith<$Res> {
       int? alarmid,
       String text,
       bool complete,
-      Color? color});
+      Color color,
+      bool setAlarm});
 }
 
 /// @nodoc
@@ -64,7 +66,8 @@ class _$TodoEditDataCopyWithImpl<$Res, $Val extends TodoEditData>
     Object? alarmid = freezed,
     Object? text = null,
     Object? complete = null,
-    Object? color = freezed,
+    Object? color = null,
+    Object? setAlarm = null,
   }) {
     return _then(_value.copyWith(
       todoid: null == todoid
@@ -91,10 +94,14 @@ class _$TodoEditDataCopyWithImpl<$Res, $Val extends TodoEditData>
           ? _value.complete
           : complete // ignore: cast_nullable_to_non_nullable
               as bool,
-      color: freezed == color
+      color: null == color
           ? _value.color
           : color // ignore: cast_nullable_to_non_nullable
-              as Color?,
+              as Color,
+      setAlarm: null == setAlarm
+          ? _value.setAlarm
+          : setAlarm // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -114,7 +121,8 @@ abstract class _$$_TodoEditDataCopyWith<$Res>
       int? alarmid,
       String text,
       bool complete,
-      Color? color});
+      Color color,
+      bool setAlarm});
 }
 
 /// @nodoc
@@ -134,7 +142,8 @@ class __$$_TodoEditDataCopyWithImpl<$Res>
     Object? alarmid = freezed,
     Object? text = null,
     Object? complete = null,
-    Object? color = freezed,
+    Object? color = null,
+    Object? setAlarm = null,
   }) {
     return _then(_$_TodoEditData(
       todoid: null == todoid
@@ -161,10 +170,14 @@ class __$$_TodoEditDataCopyWithImpl<$Res>
           ? _value.complete
           : complete // ignore: cast_nullable_to_non_nullable
               as bool,
-      color: freezed == color
+      color: null == color
           ? _value.color
           : color // ignore: cast_nullable_to_non_nullable
-              as Color?,
+              as Color,
+      setAlarm: null == setAlarm
+          ? _value.setAlarm
+          : setAlarm // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -179,7 +192,8 @@ class _$_TodoEditData implements _TodoEditData {
       this.alarmid = null,
       required this.text,
       this.complete = false,
-      this.color = null});
+      this.color = Colors.transparent,
+      this.setAlarm = false});
 
   @override
   final int todoid;
@@ -198,11 +212,14 @@ class _$_TodoEditData implements _TodoEditData {
   final bool complete;
   @override
   @JsonKey()
-  final Color? color;
+  final Color color;
+  @override
+  @JsonKey()
+  final bool setAlarm;
 
   @override
   String toString() {
-    return 'TodoEditData(todoid: $todoid, date: $date, alarm: $alarm, alarmid: $alarmid, text: $text, complete: $complete, color: $color)';
+    return 'TodoEditData(todoid: $todoid, date: $date, alarm: $alarm, alarmid: $alarmid, text: $text, complete: $complete, color: $color, setAlarm: $setAlarm)';
   }
 
   @override
@@ -217,12 +234,14 @@ class _$_TodoEditData implements _TodoEditData {
             (identical(other.text, text) || other.text == text) &&
             (identical(other.complete, complete) ||
                 other.complete == complete) &&
-            (identical(other.color, color) || other.color == color));
+            (identical(other.color, color) || other.color == color) &&
+            (identical(other.setAlarm, setAlarm) ||
+                other.setAlarm == setAlarm));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType, todoid, date, alarm, alarmid, text, complete, color);
+  int get hashCode => Object.hash(runtimeType, todoid, date, alarm, alarmid,
+      text, complete, color, setAlarm);
 
   @JsonKey(ignore: true)
   @override
@@ -239,7 +258,8 @@ abstract class _TodoEditData implements TodoEditData {
       final int? alarmid,
       required final String text,
       final bool complete,
-      final Color? color}) = _$_TodoEditData;
+      final Color color,
+      final bool setAlarm}) = _$_TodoEditData;
 
   @override
   int get todoid;
@@ -254,7 +274,9 @@ abstract class _TodoEditData implements TodoEditData {
   @override
   bool get complete;
   @override
-  Color? get color;
+  Color get color;
+  @override
+  bool get setAlarm;
   @override
   @JsonKey(ignore: true)
   _$$_TodoEditDataCopyWith<_$_TodoEditData> get copyWith =>

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:todo_application/database/database_drift.dart';
 import 'package:todo_application/todo_repository.dart';
 import 'package:todo_application/value/todo_editdata.dart';
 import 'package:todo_application/value/todo_viewdata.dart';
-import 'package:todo_application/value/todolistpage_state.dart';
-
+import 'package:todo_application/value/todo_listpage_state.dart';
+import 'dart:async';
 
 final localDatabaseProvider = Provider<LocalDatabase>((ref) => LocalDatabase());
 
@@ -13,7 +14,7 @@ final todoRepositoryProvider = Provider<TodoRepository>((ref) => TodoRepository(
 
 final todoListProvider = FutureProvider<List<TodoViewData>>((ref) => ref.watch(todoRepositoryProvider).fetchTodos());
 
-final todoProvider = FutureProvider.autoDispose.family<TodoEditData,int>((ref, todoid) async {
+final todoProvider = FutureProvider.autoDispose.family<TodoEditData,int>((ref, todoid) {
    return ref.watch(todoRepositoryProvider).fetchTodoById(todoid);
   });
 
@@ -101,6 +102,28 @@ class TodoSelectedNotifier extends ChangeNotifier{
   }
 }
 
+class ClockController extends StateNotifier<DateTime>{
+  late final Timer _timer;
+
+  static const _periondicSec = 1;
+
+  ClockController() :super(DateTime.now()){
+    _timer = Timer.periodic(Duration(seconds: _periondicSec),(_) async{
+      final now = DateTime.now();
+      state = now;
+    });
+
+      @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+  }
+}
+
+final clockProvider = StateNotifierProvider<ClockController, DateTime>((ref) {
+  return ClockController();
+});
 
 
 /*

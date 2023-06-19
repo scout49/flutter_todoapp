@@ -4,20 +4,51 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:todo_application/provider.dart';
 import 'package:todo_application/value/todo_viewdata.dart';
-import 'package:todo_application/page/TodoEditPage.dart';
+import 'package:todo_application/page/todoeditpage/TodoEditPage.dart';
 import 'widget_button.dart';
 import 'widget_show.dart';
+import 'package:animations/animations.dart';
+import '../common/common_DateTime.dart';
+import '../provider.dart';
 
 
+//class AlarmIconContainer extends HookConsumerWidget
 
+class AnimationTodoListTile extends HookConsumerWidget{
+  const AnimationTodoListTile({
+    required this.todo,
+  });
+
+  final TodoViewData todo;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref){
+    return OpenContainer(
+      transitionDuration: const Duration(milliseconds: 400),
+      transitionType: ContainerTransitionType.fade,
+      closedBuilder: ((context, VoidCallback openContainer) {
+        return TodoListTile(todo: todo,
+        onTap: (){
+          openContainer();
+        },
+        );
+      }),
+      openBuilder: ((context, VoidCallback _){
+        return TodoEditPage(todoid: todo.todoid);
+      })
+    );
+  }
+}
 
 
 class TodoListTile extends HookConsumerWidget {
   const TodoListTile({
     required this.todo,
+    required this.onTap,
   });
 
   final TodoViewData todo;
+  final Function onTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,7 +57,7 @@ class TodoListTile extends HookConsumerWidget {
     return Column(
       children: [
         ListTile(
-          leading: Visibility(visible : todo.complete , child: todo.complete == true? const Icon(Icons.done): const SizedBox.shrink()),
+          //leading: Visibility(visible : todo.complete , child: todo.complete == true? const Icon(Icons.done): const SizedBox.shrink()),
           title: todo.complete
               ? Text(todo.text, style: const TextStyle(decoration: TextDecoration.lineThrough))
               : Text(todo.text),
@@ -34,19 +65,23 @@ class TodoListTile extends HookConsumerWidget {
               ? Row(children: [const Text('予定日:'), DateText(time: todo.date)])
               : Row(children: [
                   Text('予定日:'),
+                  
                   DateText(time: todo.date),
                   Text(' アラーム:'),
                   DateTimeText(time: todo.alarm!),
                 ]),
-          trailing: ifAlarm(todo.alarm),
+          trailing: Visibility(visible : todo.alarm != null, child: ifAlarm(todo.alarm)),
           tileColor: todo.color,
           onTap: () {
+            onTap();
+            /*
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => TodoEditPage(todoid: todo.todoid),
               ),
             );
+            */
           },
           selected: selectProvider.selectId == todo.todoid,
         ),
@@ -64,6 +99,7 @@ class TodoListTile extends HookConsumerWidget {
       }
     }else{
       return const Icon(Icons.alarm_off_outlined);
+      //return ;
     }
   }
 }
@@ -78,6 +114,7 @@ class DismissibleReorderbleListView extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref){
+    final positions = List<int>.from(todos.map((todo) => todo.position));
     return ReorderableListView.builder(
         padding: const EdgeInsets.symmetric(horizontal:10),
         itemCount: todos.length,
@@ -106,29 +143,33 @@ class DismissibleReorderbleListView extends HookConsumerWidget {
               color: Colors.red,
               child: const Icon(Icons.delete, color: Colors.white),
             ),
-            child: TodoListTile(todo: todos[index]),
+            child: AnimationTodoListTile(todo: todos[index]),
             //child: ListTile.divideTiles(context: context, tiles : TodoListTile(todo: todos[index])).
           );
         },
-        onReorder: (int oldIndex, int newIndex) {
-          if (oldIndex < newIndex) {
-            newIndex -= 1;
-          }
-          final oldId = todos[oldIndex].todoid;
-          final newId = todos[newIndex].todoid;
-          ref.watch(todoRepositoryProvider).reorderTodos(oldId, newId);
-
-          print('onReorder');
-
-          final TodoViewData item = todos.removeAt(oldIndex);
-          todos.insert(newIndex,item);
-          ref.watch(SelectedTodoProvider).deleteId();
-        },
         onReorderStart: (int index){
           print('startReorder');
+          //positions = todos.map((todo) => todo.position).toList();
           final id = todos[index].todoid;
           ref.watch(SelectedTodoProvider).setId(id);
         },
+
+        onReorder: (int oldIndex, int newIndex)async {
+          if (oldIndex < newIndex) {
+            newIndex -= 1;
+          }
+
+          final TodoViewData item = todos.removeAt(oldIndex);
+          todos.insert(newIndex, item);
+
+          // リストを再配置した後、新たな位置情報を設定する
+          for (int i = 0; i < todos.length; i++) {
+            ref.watch(todoRepositoryProvider).updateTodoPosition(todos[i].todoid, positions[i]);
+          }
+          ref.watch(SelectedTodoProvider).deleteId();
+          ref.refresh(todoListProvider);
+        },
+
       );
   }
 }
@@ -150,8 +191,6 @@ class AlarmListTile extends HookConsumerWidget{
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // TODO: implement build
-    //final state = useState(0);    
     return Card(
       child: time == null ? 
       Column(children: <Widget>[
@@ -160,17 +199,17 @@ class AlarmListTile extends HookConsumerWidget{
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
             //Switch(value: state, onChanged: onChanged)
-            DateTimePickerButton(alarm: DateTime.now(), onDateTimeSelected: onDateTimeSelected)
+            DateTimePickerButton(alarm: DateTime.now(), onDateTimeSelected: onDateTimeSelected,)
           ],
         ),
         ]):
       Column(children: <Widget>[
-        ListTile(title: Text('アラーム設定時間 : $time')),
+        ListTile(title: Row(children: [const Text('アラーム設定時間 :'),DateTimeText(time: time!),const Text(' あと'),RemainingTimeText(time: time!)])),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
-            DatePickerButton(date: time!, onDateSelected: onDateSelected),
-            TimePickerButton(time: time!, onTimeSelected: onTimeSelected),
+            DatePickerButton(date: time!, onDateSelected: onDateSelected, label: const Text('日付'),),
+            TimePickerButton(time: time!, onTimeSelected: onTimeSelected, label: const Text('時刻')),
           ],
         ),
 
@@ -198,6 +237,7 @@ class AnimatedListView extends HookConsumerWidget {
   }
 }
 
+/*
 class DismissibleReorderbleListView_test extends HookConsumerWidget {
 
   @override
@@ -208,7 +248,9 @@ class DismissibleReorderbleListView_test extends HookConsumerWidget {
       loading :() => const CircularProgressIndicator(),
       error: (err,stack) => Text('Error: $err'),
       data: (todos)     
-      {return ReorderableListView.builder(
+      {
+        final positions = todos.map((todo) => todo.position).toList();
+        return ReorderableListView.builder(
         padding: const EdgeInsets.symmetric(horizontal:20),
         itemCount: todos.length,
         itemBuilder: (_, int index) {
@@ -236,23 +278,25 @@ class DismissibleReorderbleListView_test extends HookConsumerWidget {
               color: Colors.red,
               child: const Icon(Icons.delete, color: Colors.white),
             ),
-            child: TodoListTile(todo: todos[index])
+            child: AnimationTodoListTile(todo: todos[index])
           );
         },
-        onReorder: (int oldIndex, int newIndex) {
-          if (oldIndex < newIndex) {
-            newIndex -= 1;
-          }
-          final oldId = todos[oldIndex].todoid;
-          final newId = todos[newIndex].todoid;
-          ref.watch(todoRepositoryProvider).reorderTodos(oldId, newId);
+        onReorder: (int oldIndex, int newIndex) async {
+        if (oldIndex < newIndex) {
+          newIndex -= 1;
+        }
 
-          print('onReorder');
+        final TodoViewData item = todos.removeAt(oldIndex);
+        todos.insert(newIndex, item);
 
-          final TodoViewData item = todos.removeAt(oldIndex);
-          todos.insert(newIndex,item);
-          ref.watch(SelectedTodoProvider).deleteId();
+        // リストを再配置した後、新たな位置情報を設定する
+        for (int i = 0; i < todos.length; i++) {
+          ref.watch(todoRepositoryProvider).updateTodoPosition(todos[i].todoid, positions[i]);
+        }
+
+        //ref.watch(SelectedTodoProvider).deleteId();
         },
+
         onReorderStart: (int index){
           print('startReorder');
           final id = todos[index].todoid;
@@ -262,3 +306,4 @@ class DismissibleReorderbleListView_test extends HookConsumerWidget {
       );
   }
 }
+*/

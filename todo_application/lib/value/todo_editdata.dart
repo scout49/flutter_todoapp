@@ -14,6 +14,7 @@ class TodoEditData with _$TodoEditData {
     @Default(null)int? alarmid,
     required String text,
     @Default(false) bool complete,
-    @Default(null) Color? color,
+    @Default(Colors.transparent) Color color,
+    @Default(false)bool setAlarm,
   }) = _TodoEditData;
 }
